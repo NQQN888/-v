@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创维展示 - 数字展厅设计与施工专家</title>
+    <!-- Three.js 3D库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        /* 基础样式 - 科技感深蓝主题 */
+        :root {
+            --primary-color: #0a1f3d;
+            --accent-color: #00f7ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'HarmonyOS Sans', sans-serif;
+        }
+
+        /* 响应式导航栏 */
+        .navbar {
+            background: rgba(10, 31, 61, 0.95);
+            padding: 1rem 5%;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            width: 180px;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* 首屏全屏视频背景 */
+        .hero-section {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #hero-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+        }
+
+        /* 案例3D轮播容器 */
+        .case-carousel {
+            padding: 4rem 5%;
+            background: var(--primary-color);
+        }
+
+        #three-container {
+            width: 100%;
+            height: 600px;
+            position: relative;
+        }
+
+        /* 悬浮交互按钮 */
+        .hover-button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--accent-color), #0066ff);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .hover-button:hover {
+            transform: translateY(-3px);
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none; /* 移动端建议使用汉堡菜单 */
+            }
+            
+            #three-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <img src="logo.png" alt="公司logo" class="logo">
+        <div class="nav-links">
+            <a href="#services">主营业务</a>
+            <a href="#cases">成功案例</a>
+            <a href="#tech">技术实力</a>
+            <a href="#contact">联系我们</a>
+        </div>
+    </nav>
+
+    <!-- 首屏视频 -->
+    <section class="hero-section">
+        <video autoplay muted loop id="hero-video">
+            <source src="showroom-demo.mp4" type="video/mp4">
+        </video>
+    </section>
+
+    <!-- 3D案例展示区 -->
+    <section class="case-carousel">
+        <h2>智能沙盘案例展示</h2>
+        <div id="three-container"></div>
+        <button class="hover-button" onclick="rotateModel()">旋转查看</button>
+    </section>
+
+    <script>
+        // Three.js 基础3D场景初始化
+        let scene, camera, renderer, model;
+
+        function initThree() {
+            // 场景设置
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, 
+                window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, 600);
+            document.getElementById('three-container').appendChild(renderer.domElement);
+
+            // 添加基础灯光
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+
+            // 加载公司沙盘模型（需准备.glb格式模型）
+            const loader = new THREE.GLTFLoader();
+            loader.load('smart-sandtable.glb', function(gltf) {
+                model = gltf.scene;
+                scene.add(model);
+                camera.position.z = 5;
+                animate();
+            });
+        }
+
+        // 模型旋转动画
+        function animate() {
+            requestAnimationFrame(animate);
+            if(model) model.rotation.y += 0.005;
+            renderer.render(scene, camera);
+        }
+
+        // 按钮交互控制
+        function rotateModel() {
+            if(model) model.rotation.y += Math.PI/2;
+        }
+
+        // 响应式处理
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, 600);
+        });
+
+        // 初始化
+        initThree();
+    </script>
+</body>
+</html>
